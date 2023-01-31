@@ -16,6 +16,7 @@ from text_summary import text_summary
 from flask import Flask, render_template, request
 import requests
 
+ID = 0
 
 app = Flask(__name__)
 app.secret_key = 'cb5b93ad8f1b4eceb0db22fa6105df83'
@@ -119,6 +120,11 @@ def dashboard():
 #     logout_user()
 #     return redirect(url_for('login'))
 
+@app.route('/community', methods=['GET', 'POST'])
+# @login_required
+def community():
+    return render_template('community.html')
+
 
 @app.cli.command('db_create')
 def db_create():
@@ -159,7 +165,19 @@ def db_drop():
 
 @app.route('/')
 def hello_world():
-    return render_template('main.html', index=True)
+    global ID
+    obj = Review.query.all()
+    last_obj = obj[-1]
+    ID = last_obj.id
+    user1 = Review.query.filter_by(id=ID-5).first()
+    user2 = Review.query.filter_by(id=ID-4).first()
+    user3 = Review.query.filter_by(id=ID-3).first()
+    user4 = Review.query.filter_by(id=ID-2).first()
+    user5 = Review.query.filter_by(id=ID-1).first()
+    user6 = Review.query.filter_by(id=ID).first()
+    # return render_template('main.html')
+    return render_template('main.html', user1=user1, user2=user2, user3=user3, user4=user4, user5=user5, user6=user6)
+    # return render_template('newkanun.html')
 
 
 @app.route('/super_simple')
@@ -250,11 +268,11 @@ def laws():
 #             for i in range(35):
 #                 if obj in jsonData[i]['Name']:
 #                     if "ArtDesc" in jsonData[i]:
-#                         str = str + nl + nl+nl+"ArtNo : " + \
+#                         str = str + nl + nl+nl+"<html><body><b>ArtNo : </b></body></html>"+ \
 #                             jsonData[i]['ArtNo']+nl + \
-#                             "ArtDesc : "+jsonData[i]['ArtDesc']
+#                             "<html><body><b>ArtDesc : </b></body></html>": "+jsonData[i]['ArtDesc']
 #                     else:
-#                         str = str+nl+nl+nl+"ArtNo : "+jsonData[i]['ArtNo']
+#                         str = str+nl+nl+nl+"<html><body><b>ArtNo : </b></body></html>" : "+jsonData[i]['ArtNo']
 #                         if "Clauses" in jsonData[i]:
 #                             clause = jsonData[i]["Clauses"]
 #                             for l in clause:
@@ -287,17 +305,18 @@ def data():
                 if obj in jsonData[i]['Name']:
                     if "ArtDesc" in jsonData[i]:
                         if text_summary(jsonData[i]['ArtDesc']) != "":
-                            str = str + nl + nl+nl+"ArtNo : " + \
+                            str = str + nl + nl+nl+"<html><body><b>ArtNo : </b></body></html>" + \
                                 jsonData[i]['ArtNo']+nl + \
-                                "ArtDesc : " + \
+                                "<html><body><b>ArtDesc : </b></body></html>" + \
                                 text_summary(jsonData[i]['ArtDesc'])
                         else:
-                            str = str + nl + nl+nl+"ArtNo : " + \
+                            str = str + nl + nl+nl+"<html><body><b>ArtNo : </b></body></html>" + \
                                 jsonData[i]['ArtNo']+nl + \
-                                "ArtDesc : " + \
+                                "<html><body><b>ArtDesc : </b></body></html>" + \
                                 (jsonData[i]['ArtDesc'])
                     else:
-                        str = str+nl+nl+nl+"ArtNo : "+jsonData[i]['ArtNo']
+                        str = str+nl+nl+nl+"<html><body><b>ArtNo : </b></body></html>" + \
+                            jsonData[i]['ArtNo']
                         str1 = ""
                         if "Clauses" in jsonData[i]:
                             clause = jsonData[i]["Clauses"]
@@ -311,9 +330,13 @@ def data():
                                     str1 = str1+l['ClauseDesc']
                         # str1 = text_summary(str1)
                         if text_summary(str1) != "":
-                            str = str+nl+"ArtDesc : "+text_summary(str1)+nl
+                            str = str+nl+"<html><body><b>ArtDesc : </b></body></html>" + \
+                                text_summary(str1)+nl
                         else:
-                            str = str+nl+"ArtDesc : "+(str1)+nl
+                            str = str+nl + \
+                                "<html><body><b>ArtDesc : </b></body></html>" + \
+                                (str1)+nl
+            # str1 = "<html><body><i>"+str+"</i></body></html>"
             return (str)
     return 'Not found'
 
@@ -335,17 +358,18 @@ def property():
                     if obj in jsonData[i]['Name']:
                         if "ArtDesc" in jsonData[i]:
                             if text_summary(jsonData[i]['ArtDesc']) != "":
-                                str = str + nl + nl+nl+"ArtNo : " + \
+                                str = str + nl + nl+nl+"<html><body><b>ArtNo : </b></body></html>" + \
                                     jsonData[i]['ArtNo']+nl + \
-                                    "ArtDesc : " + \
+                                    "<html><body><b>ArtDesc : </b></body></html>" + \
                                     text_summary(jsonData[i]['ArtDesc'])
                             else:
-                                str = str + nl + nl+nl+"ArtNo : " + \
+                                str = str + nl + nl+nl+"<html><body><b>ArtNo : </b></body></html>" + \
                                     jsonData[i]['ArtNo']+nl + \
-                                    "ArtDesc : " + \
+                                    "<html><body><b>ArtDesc : </b></body></html>" + \
                                     (jsonData[i]['ArtDesc'])
                         else:
-                            str = str+nl+nl+nl+"ArtNo : "+jsonData[i]['ArtNo']
+                            str = str+nl+nl+nl+"<html><body><b>ArtNo : </b></body></html>" + \
+                                jsonData[i]['ArtNo']
                             str1 = ""
                             if "Clauses" in jsonData[i]:
                                 clause = jsonData[i]["Clauses"]
@@ -359,10 +383,13 @@ def property():
                                         str1 = str1+l['ClauseDesc']
                             # str1 = text_summary(str1)
                             if text_summary(str1) != "":
-                                str = str+nl+"ArtDesc : "+text_summary(str1)+nl
+                                str = str+nl+"<html><body><b>ArtDesc : </b></body></html>" + \
+                                    text_summary(str1)+nl
                             else:
-                                str = str+nl+"ArtDesc : "+(str1)+nl
-                    return (str)
+                                str = str+nl + \
+                                    "<html><body><b>ArtDesc : </b></body></html>" + \
+                                    (str1)+nl
+                        return (str)
         return 'Not found'
 
 
@@ -383,17 +410,18 @@ def citizenship():
                     if obj in jsonData[i]['Name']:
                         if "ArtDesc" in jsonData[i]:
                             if text_summary(jsonData[i]['ArtDesc']) != "":
-                                str = str + nl + nl+nl+"ArtNo : " + \
+                                str = str + nl + nl+nl+"<html><body><b>ArtNo : </b></body></html>" + \
                                     jsonData[i]['ArtNo']+nl + \
-                                    "ArtDesc : " + \
+                                    "<html><body><b>ArtDesc : </b></body></html>" + \
                                     text_summary(jsonData[i]['ArtDesc'])
                             else:
-                                str = str + nl + nl+nl+"ArtNo : " + \
+                                str = str + nl + nl+nl+"<html><body><b>ArtNo : </b></body></html>" + \
                                     jsonData[i]['ArtNo']+nl + \
-                                    "ArtDesc : " + \
+                                    "<html><body><b>ArtDesc : </b></body></html>" + \
                                     (jsonData[i]['ArtDesc'])
                         else:
-                            str = str+nl+nl+nl+"ArtNo : "+jsonData[i]['ArtNo']
+                            str = str+nl+nl+nl+"<html><body><b>ArtNo : </b></body></html>" + \
+                                jsonData[i]['ArtNo']
                             str1 = ""
                             if "Clauses" in jsonData[i]:
                                 clause = jsonData[i]["Clauses"]
@@ -407,9 +435,12 @@ def citizenship():
                                         str1 = str1+l['ClauseDesc']
                             # str1 = text_summary(str1)
                             if text_summary(str1) != "":
-                                str = str+nl+"ArtDesc : "+text_summary(str1)+nl
+                                str = str+nl+"<html><body><b>ArtDesc : </b></body></html>" + \
+                                    text_summary(str1)+nl
                             else:
-                                str = str+nl+"ArtDesc : "+(str1)+nl
+                                str = str+nl + \
+                                    "<html><body><b>ArtDesc : </b></body></html>" + \
+                                    (str1)+nl
                     return (str)
         return 'Not found'
 
@@ -431,17 +462,18 @@ def criminal():
                     if obj in jsonData[i]['Name']:
                         if "ArtDesc" in jsonData[i]:
                             if text_summary(jsonData[i]['ArtDesc']) != "":
-                                str = str + nl + nl+nl+"ArtNo : " + \
+                                str = str + nl + nl+nl+"<html><body><b>ArtNo : </b></body></html>" + \
                                     jsonData[i]['ArtNo']+nl + \
-                                    "ArtDesc : " + \
+                                    "<html><body><b>ArtDesc : </b></body></html>" + \
                                     text_summary(jsonData[i]['ArtDesc'])
                             else:
-                                str = str + nl + nl+nl+"ArtNo : " + \
+                                str = str + nl + nl+nl+"<html><body><b>ArtNo : </b></body></html>" + \
                                     jsonData[i]['ArtNo']+nl + \
-                                    "ArtDesc : " + \
+                                    "<html><body><b>ArtDesc : </b></body></html>" + \
                                     (jsonData[i]['ArtDesc'])
                         else:
-                            str = str+nl+nl+nl+"ArtNo : "+jsonData[i]['ArtNo']
+                            str = str+nl+nl+nl+"<html><body><b>ArtNo : </b></body></html>" + \
+                                jsonData[i]['ArtNo']
                             str1 = ""
                             if "Clauses" in jsonData[i]:
                                 clause = jsonData[i]["Clauses"]
@@ -455,9 +487,64 @@ def criminal():
                                         str1 = str1+l['ClauseDesc']
                             # str1 = text_summary(str1)
                             if text_summary(str1) != "":
-                                str = str+nl+"ArtDesc : "+text_summary(str1)+nl
+                                str = str+nl+"<html><body><b>ArtDesc : </b></body></html>" + \
+                                    text_summary(str1)+nl
                             else:
-                                str = str+nl+"ArtDesc : "+(str1)+nl
+                                str = str+nl + \
+                                    "<html><body><b>ArtDesc : </b></body></html>" + \
+                                    (str1)+nl
+                    return (str)
+        return 'Not found'
+
+
+@app.route('/civil', methods=['GET', 'POST'])
+def civil():
+    str = ""
+    summary = ""
+    nl = "<html > <body > <br > </body > </html >"
+    if request.method == 'POST':
+        # form = SearchForm()
+        obj = request.form['keyword']
+        # obj = form.keyword.data
+        with open("C:\\Users\\Bhoomika\\KANUN_Inheritance\\COI.json", encoding='utf-8') as JsonFile:
+            data = json.load(JsonFile)
+            jsonData = data["laws"]
+            for i in range(35):
+                if jsonData[i]['Category'] == 'Civil Law':
+                    if obj in jsonData[i]['Name']:
+                        if "ArtDesc" in jsonData[i]:
+                            if text_summary(jsonData[i]['ArtDesc']) != "":
+                                str = str + nl + nl+nl+"<html><body><b>ArtNo :</b><br></body></html>" + \
+                                    jsonData[i]['ArtNo']+nl + \
+                                    "<html><body><b>ArtDesc : </b></body></html>" + \
+                                    text_summary(jsonData[i]['ArtDesc'])
+                            else:
+                                str = str + nl + nl+nl+"<html><body><b>ArtNo : </b></body></html>" + \
+                                    jsonData[i]['ArtNo']+nl + \
+                                    "<html><body><b>ArtDesc : </b></body></html>" + \
+                                    (jsonData[i]['ArtDesc'])
+                        else:
+                            str = str+nl+nl+nl+"<html><body><b>ArtNo : </b></body></html>" + \
+                                jsonData[i]['ArtNo']
+                            str1 = ""
+                            if "Clauses" in jsonData[i]:
+                                clause = jsonData[i]["Clauses"]
+                                for l in clause:
+                                    # str = str+nl+nl+"ClauseNo: "+l['ClauseNo']
+                                    if "SubClauses" in l:
+                                        SubClauses = l['SubClauses']
+                                        for j in SubClauses:
+                                            str1 = str1 + j['SubClauseDesc']
+                                    else:
+                                        str1 = str1+l['ClauseDesc']
+                            # str1 = text_summary(str1)
+                            if text_summary(str1) != "":
+                                str = str+nl+"<html><body><b>ArtDesc : </b></body></html>" + \
+                                    text_summary(str1)+nl
+                            else:
+                                str = str+nl + \
+                                    "<html><body><b>ArtDesc : </b></body></html>" + \
+                                    (str1)+nl
                     return (str)
         return 'Not found'
 
@@ -485,18 +572,36 @@ def criminal():
 @app.route('/review', methods=['GET', 'POST'])
 def review():
     form1 = ReviewForm()
-    # if form1.validate_on_submit():
-    new_review = Review(username=form1.username.data,
-                        Review=form1.Review.data, Rating=form1.Rating.data)
-    db.session.add(new_review)
-    db.session.commit()
-    return render_template('main.html')
+    if form1.validate_on_submit():
+        username = form1.username.data
+        user = Review.query.filter_by(username=username).first()
+        if not user:
+            new_review = Review(username=form1.username.data,
+                                Review=form1.Review.data, Rating=form1.Rating.data)
+            db.session.add(new_review)
+            db.session.commit()
+            global ID
+            obj = Review.query.all()
+            last_obj = obj[-1]
+            ID = last_obj.id
+            user1 = Review.query.filter_by(id=ID-5).first()
+            user2 = Review.query.filter_by(id=ID-4).first()
+            user3 = Review.query.filter_by(id=ID-3).first()
+            user4 = Review.query.filter_by(id=ID-2).first()
+            user5 = Review.query.filter_by(id=ID-1).first()
+            user6 = Review.query.filter_by(id=ID).first()
+            return render_template('main.html', user1=user1, user2=user2, user3=user3, user4=user4, user5=user5, user6=user6)
+        else:
+            return jsonify(ID)
+    return render_template('review_form.html', form=form1)
 
 
 @app.route('/view')
 def view():
-    Reviews = Review.objects.all()
-    return render_template('Review.html', Reviews=Reviews)
+    # Reviews = Review.objects.all()
+    name = 'Peter'
+    table = Review.query.filter_by(id=2).first()
+    return render_template('Review.html', user=table)
 
 
 class User(db.Model):
