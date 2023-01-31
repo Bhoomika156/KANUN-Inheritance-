@@ -8,10 +8,12 @@
 </head>
 <body>
     <form action="/review" method="POST">
+        {{ form.hidden_tag() }}
         {{ form.username }}
         {{ form.Review }}
         {{ form.Rating }}
         <p class="btnn">{{ form.Submit }}</p>
+        
     </form>
 </body>
 </html>
